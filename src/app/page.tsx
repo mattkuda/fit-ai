@@ -1,67 +1,51 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
 import Image from "next/image"
-import { UploadModal } from "@/components/upload-modal"
-
-const clothingItems = [
-  {
-    id: 1,
-    title: "Essential Hoodie",
-    price: "$45",
-    image: "/hoodie.png",
-  },
-  {
-    id: 2,
-    title: "Zeroed In Tank",
-    price: "$138",
-    image: "/tanktop.png",
-  },
-  {
-    id: 3,
-    title: "Steady State Half Zip",
-    price: "$138",
-    image: "/halfzip.png",
-  },
-  {
-    id: 4,
-    title: "Casual Blazer",
-    price: "$120",
-    image: "/blazer.png",
-  },
-]
 
 export default function Home() {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedItem, setSelectedItem] = useState<number | null>(null)
-  const [generatedImages, setGeneratedImages] = useState<Record<number, string>>({})
-  const [isLoading, setIsLoading] = useState<Record<number, boolean>>({})
+  const [userImage, setUserImage] = useState<File | null>(null)
+  const [name, setName] = useState("Matt")
+  const [subheader, setSubheader] = useState("That guy on Youtube")
+  const [items, setItems] = useState<string[]>(["burrito", "golden retriever", "kettlebell", "macbook pro", "yoga mat", "ribeye steak"])
+  const [currentItem, setCurrentItem] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [resultImage, setResultImage] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleTryOn = (itemId: number) => {
-    setSelectedItem(itemId)
-    setIsModalOpen(true)
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) setUserImage(file)
   }
 
-  const handleUpload = async (file: File, additionalInstructions?: string) => {
-    if (!selectedItem) return
+  const addItem = () => {
+    if (currentItem && items.length < 6) {
+      setItems([...items, currentItem])
+      setCurrentItem("")
+    }
+  }
 
-    setIsLoading((prev) => ({ ...prev, [selectedItem]: true }))
+  const removeItem = (index: number) => {
+    setItems(items.filter((_, i) => i !== index))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!userImage || !name || !subheader || items.length === 0) {
+      setError("Please fill in all fields")
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+
+    const formData = new FormData()
+    formData.append("userImage", userImage)
+    formData.append("name", name)
+    formData.append("subheader", subheader)
+    items.forEach(item => formData.append("items", item))
 
     try {
-      // Fetch the clothing item image
-      const clothingImageResponse = await fetch(clothingItems[selectedItem - 1].image)
-      const clothingImageBlob = await clothingImageResponse.blob()
-      const clothingImageFile = new File([clothingImageBlob], "clothing.png", { type: "image/png" })
-
-      const formData = new FormData()
-      formData.append("userImage", file)
-      formData.append("clothingImage", clothingImageFile)
-      formData.append("clothingItem", clothingItems[selectedItem - 1].title)
-      if (additionalInstructions) {
-        formData.append("additionalInstructions", additionalInstructions)
-      }
-
       const response = await fetch("/api/generate", {
         method: "POST",
         body: formData,
@@ -72,55 +56,119 @@ export default function Home() {
       }
 
       const data = await response.json()
-      setGeneratedImages((prev) => ({
-        ...prev,
-        [selectedItem]: data.imageUrl,
-      }))
+      if (data.imageData) {
+        setResultImage(`data:image/png;base64,${data.imageData}`)
+      } else {
+        throw new Error("No image data received")
+      }
     } catch (error) {
-      console.error("Error generating image:", error)
+      setError(`Failed to generate image: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
-      setIsLoading((prev) => ({ ...prev, [selectedItem]: false }))
+      setLoading(false)
     }
   }
 
   return (
-    <main className="min-h-screen p-8">
-      <h1 className="text-4xl font-bold text-center mb-8">See It On You</h1>
-      <div className="grid grid-cols-2 gap-4 max-w-4xl mx-auto">
-        {clothingItems.map((item) => (
-          <div key={item.id} className="relative group">
-            <div className="aspect-square relative overflow-hidden rounded-lg">
-              <Image
-                src={generatedImages[item.id] || item.image}
-                alt={item.title}
-                fill
-                className="object-cover object-top"
+    <main className="min-h-screen bg-gray-900 text-white p-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl font-bold mb-2 text-center">Action Figure Generator</h1>
+        <p className="text-gray-400 text-center mb-8">Create your custom action figure in seconds</p>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Upload Your Photo</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
               />
-              {!generatedImages[item.id] && (
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button onClick={() => handleTryOn(item.id)}>
-                    Try It On
-                  </Button>
-                </div>
-              )}
-              {isLoading[item.id] && (
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-                </div>
-              )}
             </div>
-            <div className="mt-2">
-              <h3 className="font-medium">{item.title}</h3>
-              <p className="text-sm text-gray-500">{item.price}</p>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Figure Name</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
+                placeholder="Enter figure name"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Subheader</label>
+              <input
+                type="text"
+                value={subheader}
+                onChange={(e) => setSubheader(e.target.value)}
+                className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
+                placeholder="Enter subheader"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Accessories (up to 6)</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={currentItem}
+                  onChange={(e) => setCurrentItem(e.target.value)}
+                  className="flex-1 p-2 bg-gray-800 border border-gray-700 rounded"
+                  placeholder="Add an accessory"
+                />
+                <button
+                  type="button"
+                  onClick={addItem}
+                  disabled={items.length >= 6}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded disabled:opacity-50"
+                >
+                  Add
+                </button>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {items.map((item, index) => (
+                  <div key={index} className="flex items-center gap-2 bg-gray-800 px-3 py-1 rounded">
+                    <span>{item}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeItem(index)}
+                      className="text-red-400 hover:text-red-300"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        ))}
+
+          {error && <p className="text-red-400">{error}</p>}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 bg-purple-600 hover:bg-purple-700 rounded font-medium disabled:opacity-50"
+          >
+            {loading ? "Generating..." : "Generate Action Figure"}
+          </button>
+        </form>
+
+        {resultImage && (
+          <div className="mt-8">
+            <h2 className="text-2xl font-bold mb-4">Your Action Figure</h2>
+            <div className="relative aspect-square max-w-2xl mx-auto">
+              <Image
+                src={resultImage}
+                alt="Generated action figure"
+                fill
+                className="object-contain rounded-lg"
+              />
+            </div>
+          </div>
+        )}
       </div>
-      <UploadModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onUpload={handleUpload}
-      />
     </main>
   )
 }

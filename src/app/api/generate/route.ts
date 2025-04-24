@@ -8,39 +8,35 @@ const openai = new OpenAI({
 export async function POST(request: Request) {
     try {
         const formData = await request.formData()
-        console.log(formData);
         const userImage = formData.get("userImage") as File
-        const clothingImage = formData.get("clothingImage") as File
-        const clothingItem = formData.get("clothingItem") as string
-        const additionalInstructions = formData.get("additionalInstructions") as string
+        const name = formData.get("name") as string
+        const subheader = formData.get("subheader") as string
+        const items = formData.getAll("items") as string[]
 
-        if (!userImage || !clothingImage || !clothingItem) {
+        if (!userImage || !name || !subheader || !items || items.length === 0) {
             return NextResponse.json(
                 { error: "Missing required fields" },
                 { status: 400 }
             )
         }
 
-        let prompt = `Generate an image of a person wearing ${clothingItem}. The person should be in the same pose and position as the user's reference image.
-        The image should have studio lighting and a white background, similar to that of a Lululemon catalog.
-        Use the clothing item image as a reference for the exact style, fit, and details of the garment.`
-        if (additionalInstructions) {
-            prompt += ` ${additionalInstructions}`
-        }
+        const itemsList = items.slice(0, 6).join(", ")
+        const prompt = `Draw an action figure toy (barbie doll) of the person in this photo. The figure should be full figure and displayed in it original blister pack packaging. On top of the box is the name of the toy "${name}" with "${subheader}" across a single line of text. In the blister pack packaging, next to the figure show the toy's accessories including ${itemsList}`
 
-        const result = await openai.images.edit({
+        const result = await openai.images.generate({
             model: "gpt-image-1",
-            image: userImage,
             prompt,
             size: "1024x1024",
             quality: "high",
         })
 
-        if (!result.data?.[0]?.url) {
-            throw new Error("No image URL returned from OpenAI")
+        console.log('result', result)
+
+        if (!result.data?.[0]?.b64_json) {
+            throw new Error("No image data returned from OpenAI")
         }
 
-        return NextResponse.json({ imageUrl: result.data[0].url })
+        return NextResponse.json({ imageData: result.data[0].b64_json })
     } catch (error) {
         console.error("Error generating image:", error)
         return NextResponse.json(
