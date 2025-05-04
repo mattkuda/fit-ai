@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { UploadModal } from "@/components/upload-modal"
 import { ImageViewerModal } from "@/components/image-viewer-modal"
+import { Header } from "@/components/header"
 
 const clothingItems = [
     {
@@ -122,70 +123,73 @@ export default function FitAI() {
     }
 
     return (
-        <main className="min-h-screen p-8">
-            <h1 className="text-4xl font-bold text-center mb-8">Fit AI ✨</h1>
-            <p className="text-center text-gray-500 mb-8">Upload reference photos of yourself and we&apos;ll generate images of you wearing each of the products below.</p>
+        <>
+            <Header />
+            <main className="min-h-screen p-8">
+                <h1 className="text-4xl font-bold text-center mb-8">Fit AI ✨</h1>
+                <p className="text-center text-gray-500 mb-8">Upload reference photos of yourself and we&apos;ll generate images of you wearing each of the products below.</p>
 
-            <div className="flex justify-center mb-8">
-                <Button
-                    onClick={() => setIsUploadModalOpen(true)}
-                    className="mr-4"
-                >
-                    Upload Reference Photos
-                </Button>
-                <Button
-                    onClick={handleApplyAll}
-                    variant="outline"
-                    disabled={referencePhotos.length === 0}
-                >
-                    Apply All Products
-                </Button>
-            </div>
+                <div className="flex justify-center mb-8">
+                    <Button
+                        onClick={() => setIsUploadModalOpen(true)}
+                        className="mr-4"
+                    >
+                        Upload Reference Photos
+                    </Button>
+                    <Button
+                        onClick={handleApplyAll}
+                        variant="outline"
+                        disabled={referencePhotos.length === 0}
+                    >
+                        Apply All Products
+                    </Button>
+                </div>
 
-            <div className="grid grid-cols-2 gap-4 max-w-4xl mx-auto">
-                {clothingItems.map((item) => (
-                    <div key={item.id} className="relative group">
-                        <div
-                            className="aspect-square relative overflow-hidden rounded-lg cursor-pointer"
-                            onClick={() => handleItemClick(item.id)}
-                        >
-                            <Image
-                                src={generatedImages[item.id] || item.image}
-                                alt={item.title}
-                                fill
-                                className="object-cover object-top"
-                            />
-                            {isLoading[item.id] && (
-                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-                                </div>
-                            )}
+                <div className="grid grid-cols-2 gap-4 max-w-4xl mx-auto">
+                    {clothingItems.map((item) => (
+                        <div key={item.id} className="relative group">
+                            <div
+                                className="aspect-square relative overflow-hidden rounded-lg cursor-pointer"
+                                onClick={() => handleItemClick(item.id)}
+                            >
+                                <Image
+                                    src={generatedImages[item.id] || item.image}
+                                    alt={item.title}
+                                    fill
+                                    className="object-cover object-top"
+                                />
+                                {isLoading[item.id] && (
+                                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="mt-2">
+                                <h3 className="font-medium">{item.title}</h3>
+                                <p className="text-sm text-gray-500">{item.price}</p>
+                            </div>
                         </div>
-                        <div className="mt-2">
-                            <h3 className="font-medium">{item.title}</h3>
-                            <p className="text-sm text-gray-500">{item.price}</p>
-                        </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
 
-            <UploadModal
-                isOpen={isUploadModalOpen}
-                onClose={() => setIsUploadModalOpen(false)}
-                onUpload={handleUpload}
-            />
-
-            {selectedItem && (
-                <ImageViewerModal
-                    isOpen={isViewerModalOpen}
-                    onClose={() => setIsViewerModalOpen(false)}
-                    images={getImagesForItem(selectedItem)}
-                    currentIndex={currentImageIndex}
-                    onChangeIndex={handleImageIndexChange}
-                    productName={clothingItems[selectedItem - 1].title}
-                    productPrice={clothingItems[selectedItem - 1].price}
+                <UploadModal
+                    isOpen={isUploadModalOpen}
+                    onClose={() => setIsUploadModalOpen(false)}
+                    onUpload={handleUpload}
                 />
-            )}
-        </main>
+
+                {selectedItem && (
+                    <ImageViewerModal
+                        isOpen={isViewerModalOpen}
+                        onClose={() => setIsViewerModalOpen(false)}
+                        images={getImagesForItem(selectedItem)}
+                        currentIndex={currentImageIndex}
+                        onChangeIndex={handleImageIndexChange}
+                        productName={clothingItems[selectedItem - 1].title}
+                        productPrice={clothingItems[selectedItem - 1].price}
+                    />
+                )}
+            </main>
+        </>
     )
 } 

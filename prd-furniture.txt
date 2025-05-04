@@ -1,0 +1,90 @@
+🧭 Page: /furniture-tryon
+Furniture Try-On with OpenAI's Image API (masking + reference)
+
+🧑‍💻 User Flow Overview
+Step 1: Upload Room Photo
+User uploads a photo of their room via drag-and-drop or file input.
+
+This image is displayed inside a canvas or editable element.
+
+App saves it as originalRoomImage.
+
+Step 2: Erase (Mask) an Area for Furniture
+User draws/erases over the uploaded image to mark where they want the furniture.
+
+App generates a mask image:
+
+Transparent where the user erased.
+
+Opaque black where they did not.
+
+This mask is saved as roomMaskImage.
+
+Step 3: Select a Furniture Item
+User sees a list/grid of 3–4 furniture options (cards or dropdown).
+
+Each option has:
+
+A name/title
+
+An image (used as a visual + OpenAI reference)
+
+A predefined prompt
+
+App saves the selected item’s:
+
+referenceImage (e.g. armchair.png)
+
+prompt (e.g. "A cozy white armchair placed in a modern living room")
+
+Step 4: Submit
+On submit:
+
+Disable form / show loading spinner or skeleton image.
+
+Make call to OpenAI’s images.edit() endpoint with:
+
+ts
+Copy
+Edit
+image: [originalRoomImage, referenceImage]  // array of File objects
+mask: roomMaskImage  // File object with transparent alpha where erased
+prompt: selectedFurniture.prompt
+model: "gpt-image-1"
+quality: "medium"
+size: "1024x1024"
+Step 5: View Result
+Once API returns:
+
+Display the resulting image full-width or in a card.
+
+Offer “Download” or “Try Another” buttons.
+
+Allow user to restart at any time.
+
+🖼️ UI Behavior Summary
+Element	Behavior
+RoomUpload	Accepts image and previews it
+CanvasEditor	Allows erasing with brush to define mask
+FurnitureSelector	Static list of 3–4 items with prompt + preview image
+SubmitButton	Disabled unless all 3: room, mask, and furniture selected
+LoadingSkeleton	Appears after submission while waiting for API
+ResultViewer	Shows generated image once returned from OpenAI
+
+🔁 Developer Notes for Cursor
+This is a single page at /furniture-tryon
+
+You’ll need client-side state to hold:
+
+originalRoomImage: File
+
+roomMaskImage: File
+
+referenceImage: File
+
+prompt: string
+
+generatedImage: string (base64 or blob URL)
+
+Use a serverless route /api/furniture-generate to handle the OpenAI call.
+

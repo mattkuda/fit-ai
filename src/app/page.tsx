@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
+import { Header } from "@/components/header"
 
 export default function Home() {
   const [userImage, setUserImage] = useState<File | null>(null)
@@ -69,106 +70,109 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-900 text-white p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold mb-2 text-center">Action Figure Generator</h1>
-        <p className="text-gray-400 text-center mb-8">Create your custom action figure in seconds</p>
+    <>
+      <Header />
+      <main className="min-h-screen bg-gray-900 text-white p-8">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-4xl font-bold mb-2 text-center">Action Figure Generator</h1>
+          <p className="text-gray-400 text-center mb-8">Create your custom action figure in seconds</p>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Upload Your Photo</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
-              />
-            </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Upload Your Photo</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-2">Figure Name</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
-                placeholder="Enter figure name"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Subheader</label>
-              <input
-                type="text"
-                value={subheader}
-                onChange={(e) => setSubheader(e.target.value)}
-                className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
-                placeholder="Enter subheader"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Accessories (up to 6)</label>
-              <div className="flex gap-2">
+              <div>
+                <label className="block text-sm font-medium mb-2">Figure Name</label>
                 <input
                   type="text"
-                  value={currentItem}
-                  onChange={(e) => setCurrentItem(e.target.value)}
-                  className="flex-1 p-2 bg-gray-800 border border-gray-700 rounded"
-                  placeholder="Add an accessory"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
+                  placeholder="Enter figure name"
                 />
-                <button
-                  type="button"
-                  onClick={addItem}
-                  disabled={items.length >= 6}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded disabled:opacity-50"
-                >
-                  Add
-                </button>
               </div>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {items.map((item, index) => (
-                  <div key={index} className="flex items-center gap-2 bg-gray-800 px-3 py-1 rounded">
-                    <span>{item}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeItem(index)}
-                      className="text-red-400 hover:text-red-300"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Subheader</label>
+                <input
+                  type="text"
+                  value={subheader}
+                  onChange={(e) => setSubheader(e.target.value)}
+                  className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
+                  placeholder="Enter subheader"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Accessories (up to 6)</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={currentItem}
+                    onChange={(e) => setCurrentItem(e.target.value)}
+                    className="flex-1 p-2 bg-gray-800 border border-gray-700 rounded"
+                    placeholder="Add an accessory"
+                  />
+                  <button
+                    type="button"
+                    onClick={addItem}
+                    disabled={items.length >= 6}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded disabled:opacity-50"
+                  >
+                    Add
+                  </button>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {items.map((item, index) => (
+                    <div key={index} className="flex items-center gap-2 bg-gray-800 px-3 py-1 rounded">
+                      <span>{item}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeItem(index)}
+                        className="text-red-400 hover:text-red-300"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
 
-          {error && <p className="text-red-400">{error}</p>}
+            {error && <p className="text-red-400">{error}</p>}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 bg-purple-600 hover:bg-purple-700 rounded font-medium disabled:opacity-50"
-          >
-            {loading ? "Generating..." : "Generate Action Figure"}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 bg-purple-600 hover:bg-purple-700 rounded font-medium disabled:opacity-50"
+            >
+              {loading ? "Generating..." : "Generate Action Figure"}
+            </button>
+          </form>
 
-        {resultImage && (
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-4">Your Action Figure</h2>
-            <div className="relative aspect-square max-w-2xl mx-auto">
-              <Image
-                src={resultImage}
-                alt="Generated action figure"
-                fill
-                className="object-contain rounded-lg"
-              />
+          {resultImage && (
+            <div className="mt-8">
+              <h2 className="text-2xl font-bold mb-4">Your Action Figure</h2>
+              <div className="relative aspect-square max-w-2xl mx-auto">
+                <Image
+                  src={resultImage}
+                  alt="Generated action figure"
+                  fill
+                  className="object-contain rounded-lg"
+                />
+              </div>
             </div>
-          </div>
-        )}
-      </div>
-    </main>
+          )}
+        </div>
+      </main>
+    </>
   )
 }
