@@ -122,7 +122,6 @@ export default function FurnitureAI() {
                 <p className="text-center text-gray-500 mb-8">Upload a photo of your room, and see how furniture would look in any specific location.</p>
 
                 <div className="max-w-4xl mx-auto space-y-8">
-                    {/* Step 1: Upload Room Photo */}
                     <div className="space-y-4">
                         <h2 className="text-2xl font-semibold">Step 1: Upload Room Photo</h2>
                         <p className="text-sm text-gray-500">Upload a square photo of your room. The image will be automatically cropped to a square format.</p>
@@ -145,8 +144,6 @@ export default function FurnitureAI() {
                             )}
                         </div>
                     </div>
-
-                    {/* Step 2: Select Furniture */}
                     {originalRoomImage && (
                         <div className="space-y-4">
                             <h2 className="text-2xl font-semibold">Step 2: Choose Furniture</h2>
@@ -158,8 +155,6 @@ export default function FurnitureAI() {
                             />
                         </div>
                     )}
-
-                    {/* Step 3: Create Mask */}
                     {selectedFurniture && originalRoomImage && (
                         <div className="space-y-4">
                             <h2 className="text-2xl font-semibold">Step 3: Mark Where to Place Furniture</h2>
@@ -170,8 +165,6 @@ export default function FurnitureAI() {
                             />
                         </div>
                     )}
-
-                    {/* Mask Preview */}
                     {roomMaskPreview && (
                         <div className="space-y-4">
                             <h2 className="text-2xl font-semibold">Mask Preview</h2>
@@ -186,8 +179,6 @@ export default function FurnitureAI() {
                             </div>
                         </div>
                     )}
-
-                    {/* Generate Button */}
                     {roomMaskImage && (
                         <div className="flex justify-center">
                             <Button
@@ -199,8 +190,6 @@ export default function FurnitureAI() {
                             </Button>
                         </div>
                     )}
-
-                    {/* Result */}
                     {generatedImage && (
                         <div className="space-y-4">
                             <h2 className="text-2xl font-semibold">Result</h2>
@@ -215,7 +204,6 @@ export default function FurnitureAI() {
                         </div>
                     )}
                 </div>
-
                 <UploadModal
                     isOpen={isUploadModalOpen}
                     onClose={() => setIsUploadModalOpen(false)}
