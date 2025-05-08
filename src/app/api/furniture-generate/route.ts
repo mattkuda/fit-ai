@@ -19,7 +19,6 @@ export async function POST(request: Request) {
             )
         }
 
-        // Convert all images to the format OpenAI expects
         const images = await Promise.all([
             toFile(roomImage, null, { type: roomImage.type }),
             toFile(furnitureImage, null, { type: furnitureImage.type })
